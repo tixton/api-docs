@@ -69,17 +69,17 @@ Available currency
 | 4     | 4 stars       |
 | 5     | 5 stars       |
 
-# Authenticate User
+# User
 
-## Login a user
+## Login
 
-Example request
+**API endpoint**
 
 ``` 
 POST /auth/login 
 ```
 
-Parameters
+**Parameters**
 
 
 | Name     | Type   | Description                       |
@@ -87,26 +87,34 @@ Parameters
 | email    | string | A valid email address from member |
 | password | string | A valid password form member      |
 
-Response
+**Example request**
 
 ```json
-[
-    {
-        "id": 3,
-        "organization": "Snappy Help",
-        "domain": "help.besnappy.com",
-        "plan_id": 1,
-        "active": 1,
-        "created_at": "2012-12-05 15:24:20",
-        "updated_at": "2013-05-07 19:48:06",
-        "custom_domain": ""
-    }
-]
+{
+    email : "foo@bar.com"
+    password : "fooBarMuse"
+}
 ```
 
-## Register a user
+**Response**
 
-Example request
+```header
+HTTP/1.1 200 OK
+X-RateLimit-Limit : 200
+X-RateLimit-Remaining : 199
+```
+
+```json
+{
+    "token": "eoJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjQsImlzcyI6Imh0dHA6XC9cL2FwaS50aXh0b24uYXBwXC92MVwvYXV0aFwvbG9niW4iLCJpYXQiOjEdNjM3MTI1MjMsImV4cCI6MTQ2MzcxNjEyMywibmJmIjoxNDYzNzEyNTIzLCJqdGkiOiI3YmU5MjVlMzk1NGIxZmVhZjcwMGpzN2ExNjRhMzM0NyJ9.sE5nXyTiaYe4Q9aUZafoVw73c-uWGUO9ofOLUlq9ano"
+}
+```
+
+You must keep this token and add into parameter whenever you access our API.
+
+## Register
+
+**API endpoint**
 
 ``` 
 POST /auth/register 
@@ -118,21 +126,113 @@ Parameters
 |-------------------|---------------|-------------------------------------------|
 | email             | string        | A valid user email                        |
 | password          | string        | A valid password from user, min 6 char    |
-| date_of_birth     | date          | Date of birth, example ```1988-10-02```   |
+| date_of_birth     | date          | Date of birth, example ```1988-10-02```,  min age 16 years old  |
 | contact           | numeric       | Phone number                              |
 | city_residence    | string        | City of residence                         |
 | base_currency     | integer       | Please see currency section for details   |
-| aff               | alphanumeric  | Promo code                                |
+| aff               | alphanumeric  | Promo code ```(optional)```               |
 
-Response
+**Example request**
+
+```json
+{
+    email : "foo@bar.com"
+    password : "fooBarMuse123"
+    date_of_birth : "1990-10-02"
+    contact : "+628798733423"
+    city_residence : "Bandung, Indonesia"
+    base_currency : "IDR"
+    aff : "PromoCode"
+}
+```
+
+**Response**
+
+HTTP : 200
 
 ```header
-
+HTTP/1.1 200 OK
+X-RateLimit-Limit : 200
+X-RateLimit-Remaining : 199
 ```
 
 ```json
+{
+    "message": "User is created.",
+    "meta":{
+        "code": 200,
+        "status": "OK"
+    }
+}
+```
+
+HTTP : 422
+
+```header
+HTTP/1.1 422 Unprocessable Entity
+X-RateLimit-Limit : 200
+X-RateLimit-Remaining : 199
+```
+
+```json
+{
+    "message": "Validation failed",
+    "errors":{
+        "email": "The email has already been taken.",
+        "password": "The password field is required.",
+        "name": "The name field is required.",
+        "date_of_birth": "The date of birth field is required.",
+        "contact": "The contact number field is required.",
+        "city_residence": "The city of residence field is required.",
+        "base_currency": "The currency field is required."
+    },
+    "meta":{
+        "code": 422,
+        "error_message": "MISSING_FIELD"
+    }
+}
+```
+
+Note
+
+After user registered, our system will sent a email verification.
+
+## Activate
+
+After user successfully registered our system. The user need verify their email address. 
+
+**API endpoint**
 
 ```
+GET /auth/activate/:confirmation_code
+```
+
+**Parameters**
+
+| Name              | Type              | Description                                   |
+| ------------------|-------------------|-----------------------------------------------|
+| confirmation_code | string/integer    | Unqiue code in the email address verification |   
+
+
+**Response**
+
+```header
+HTTP/1.1 200 OK
+X-RateLimit-Limit : 200
+X-RateLimit-Remaining : 199
+```
+
+```json
+{
+    "message": "USER_IS_ACTIVATED",
+    "meta":{
+        "code": 200,
+        "status": "OK"
+    }
+}
+```
+
+
 
 # Hotel API
 
@@ -150,9 +250,9 @@ Parameter
 | city_id       | integer   | Please see static data                    |
 | check_in      | date      | a valid date example ```2016-09-02```     |
 | check_out     | date      | a valid date example ```2016-09-02```     |
-| query         | string    |                                           |
+| query         | string    |    x                                       |
 | stars         | array     | 3, 4, 5                                   |
-| facility      | array     |                                           |
+| facility      | array     |     x                                      |
 
 Response
 
