@@ -501,16 +501,59 @@ HTTP : 404
 
 ## Buy Hotel
 
-## Sell Hotel
-
-# Travel Wish
-
-## Create 
+### Creating PO
 
 **API endpoint**
 
 ```
-/booking
+POST /purchase/:serial
+```
+
+**Parameters**
+
+| Name                  | Type      | Description                   |
+|-----------------------|-----------|-------------------------------|
+| serial                | string    | Listing tixton serial number  |
+| name                  | string    | The guest name                |
+| email                 | string    | The guest email               |
+| contact               | numeric   | The guest contact             |
+| additional_request    | text      | The additional request        |
+| currency              | string    | Please see static data        |
+
+**Response**
+
+```json
+
+```
+
+### Payment
+
+**API endpoint**
+
+```
+PUT /purchase/:serial
+```
+
+**Parameters**
+
+| Name                  | Type      | Description                       |
+|-----------------------|-----------|-----------------------------------|
+| serial                | string    | Listing tixton serial number      |
+| purchase_order        | string    | Purchase order                    |
+| payment_method        | string    | Braintree, Bank Transfer, Credit  |
+
+**Response**
+
+```json
+
+```
+
+## Sell Hotel
+
+**API endpoint**
+
+```
+POST /booking
 ```
 
 **Parameters**
@@ -570,6 +613,13 @@ HTTP : 404
     }
 }
 ```
+
+
+# Travel Wish
+
+## Get Travel Wish 
+
+## Create 
 
 ## Detail Travel Wish
 
