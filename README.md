@@ -241,7 +241,7 @@ X-RateLimit-Remaining : 199
 Example request
 
 ```
-GET /listing
+GET /search
 ```
 Parameter
 
@@ -250,9 +250,9 @@ Parameter
 | city_id       | integer   | Please see static data                    |
 | check_in      | date      | a valid date example ```2016-09-02```     |
 | check_out     | date      | a valid date example ```2016-09-02```     |
-| query         | string    |    x                                       |
+| query         | string    |    x                                      |
 | stars         | array     | 3, 4, 5                                   |
-| facility      | array     |     x                                      |
+| facility      | array     |    x                                      |
 
 Response
 
@@ -292,7 +292,7 @@ Response
                     "g_place_id": null,
                     "thumbnail": {
                         "name": "Primary",
-                        "url": "https://cdn03.tiket.photos/img/business/t/h/business-the-majesty-hotel-bandung-hotel-bandung4011.jpg",
+                        "url": "https://cdn03.tixton.com/img/business/t/h/business-the-majesty-hotel-bandung-hotel-bandung4011.jpg",
                         "extension": "jpg",
                         "mime": "image/jpg",
                         "width": null,
@@ -302,7 +302,7 @@ Response
                     "images": [
                         {
                             "name": "Primary",
-                            "url": "https://cdn03.tiket.photos/img/business/t/h/business-the-majesty-hotel-bandung-hotel-bandung4011.jpg",
+                            "url": "https://cdn03.tixton.com/img/business/t/h/business-the-majesty-hotel-bandung-hotel-bandung4011.jpg",
                             "extension": "jpg",
                             "mime": "image/jpg",
                             "width": null,
@@ -311,7 +311,7 @@ Response
                         },
                         {
                             "name": "Swimming Pool",
-                            "url": "https://cdn01.tiket.photos/img/business/t/h/business-the-majesty-hotel-bandung-hotel-bandung4011.jpg",
+                            "url": "https://cdn01.tixton.com/img/business/t/h/business-the-majesty-hotel-bandung-hotel-bandung4011.jpg",
                             "extension": "jpg",
                             "mime": "image/jpg",
                             "width": null,
@@ -389,16 +389,115 @@ Response
 
 ## View Detail
 
+**API endpoint**
+
 ```
-GET /listing/L3123122321
+GET /listing/:listing_id
 ```
 
-Response
+**Parameters**
+
+| Name          | type      | description       |
+|---------------|-----------|-------------------|
+| listing_id    | string    | Listing id        |
+| currency      | string    | See static data   |
+
+**Response**
+
+HTTP : 200
 
 ```json
-
-
+{
+    "data": {
+        "id": "L1604211535-EKUPQS",
+        "name": "Hotel Hyatt Jakarta",
+        "address": "Jalan M H Thamrin Kav 28-3, Thamrin, Jakarta, Indonesia 10230",
+        "relavance": 0,
+        "duration": 2,
+        "nights": "nights",
+        "check_in": "23 May 2016",
+        "check_out": "25 April 2016",
+        "type": "DELUXE",
+        "capacity": 8,
+        "price": {
+            "currency": "SGD",
+            "market": "0.08",
+            "per_night": "0.07",
+            "saving": "15"
+        },
+        "status": "On sale",
+        "hotel": {
+            "data": {
+                "id": 4,
+                "name": "Hotel Hyatt Jakarta",
+                "address": "Jalan M H Thamrin Kav 28-3, Thamrin, Jakarta, Indonesia 10230",
+                "star": 4,
+                "check_in_time": "13:00",
+                "check_out_time": "12:00",
+                "description": "Dolores a eius consequatur nihil nam eum. Odit molestiae placeat optio pariatur laborum maiores. Quos et repudiandae dignissimos ut quis voluptas quia. Quos quidem aut molestiae voluptatem minima cum odit consequatur. Pariatur rerum voluptatem reprehenderit laudantium et quasi. Ut quia reprehenderit accusantium esse et debitis. Non impedit est pariatur eum iste. Explicabo dolor corrupti officiis saepe officia. Autem quia non minus minus voluptates soluta esse omnis. Qui nemo explicabo qui molestias. Doloribus et sunt quas hic est. Error nulla similique temporibus quo.",
+                "ta_id": 307132,
+                "phone": "+1-309-587-8042",
+                "g_place_id": null,
+                "thumbnail": {
+                    "name": "Primary",
+                    "url": "http://api.tixton.app/images/hotel_init.png",
+                    "extension": "jpg",
+                    "mime": "image/jpg",
+                    "width": null,
+                    "height": null,
+                    "size": null
+                },
+                "images": {
+                    "0": {
+                        "name": "Primary",
+                        "url": "http://api.tixton.app/images/hotel_init.png",
+                        "extension": "jpg",
+                        "mime": "image/jpg",
+                        "width": null,
+                        "height": null,
+                        "size": null
+                    }
+                },
+                "location": {
+                    "lat": "-6.1939058",
+                    "lng": "106.8222198"
+                },
+                "facilities": []
+            }
+        },
+        "city": {
+            "data": {
+                "id": 1,
+                "name": "Jakarta",
+                "country": {
+                    "data": {
+                        "id": 1,
+                        "name": "Indonesia"
+                    }
+                }
+            }
+        }
+    },
+    "meta": {
+        "code": 200,
+        "message": "OK"
+    }
+}
 ```
+
+HTTP : 404
+
+```json
+{
+    "message": "Cannot find Listing",
+    "meta": {
+        "error_type": "PAGE_NOT_FOUND",
+        "code": 404,
+        "error_message": "Cannot find Listing"
+    }
+}
+```
+
 
 ## Buy Hotel
 
@@ -407,6 +506,70 @@ Response
 # Travel Wish
 
 ## Create 
+
+**API endpoint**
+
+```
+/booking
+```
+
+**Parameters**
+
+| Name              | Type      | Description           |
+|-------------------|-----------|-----------------------|
+| country_id        | integer   | ..                    |
+| city_name         | string    | ..                    |
+| city_id           | integer   | ..                    |
+| hotel_name        | string    | ..                    |
+| check_in          | date      | ..                    |
+| check_out         | date      | ..                    |
+| room_type         | string    | ..                    |
+| booker_name       | string    | ..                    |
+| booker_contact    | numeric   | ..                    |
+| booker_passport   | string    | ..                    |
+| booking_src_id    | integer   | ..                    |
+| booking_src_info  | .         | ..                    |
+| booking_ref       | string    | ..                    |
+| agreement         | bool      | ..                    |
+| terms             | bool      | ..                    |
+
+
+**Response**
+
+```json
+{
+    "data": {
+        "id": "B1605231724-UBR7OW",
+        "city_name": "Jakarta",
+        "hotel_name": "Hotel Jakarta",
+        "check_in": "26 May 2016",
+        "check_out": "27 May 2016",
+        "booker_name": "Purwandi M",
+        "booking_src_info": null,
+        "booking_ref": "REF",
+        "remarks": null,
+        "booker_passport": "PASS2432",
+        "booker_contact": "+62873276432",
+        "aff_id": null,
+        "room_type": "Deluxe",
+        "place_id": null,
+        "meta": {},
+        "pin_number": null,
+        "status": "Rejected",
+        "bookSrc": {
+            "data": {
+                "id": 1,
+                "name": "Hotels.com",
+                "link": "http://www.hotels.com"
+            }
+        }
+    },
+    "meta": {
+        "code": 200,
+        "message": "Successfully sell booking."
+    }
+}
+```
 
 ## Detail Travel Wish
 
