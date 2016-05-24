@@ -624,3 +624,93 @@ POST /booking
 ## Detail Travel Wish
 
 # Profile
+
+## Me
+
+**API endpoint**
+
+```
+GET /me
+```
+
+**Response**
+
+```json
+{
+    "data": {
+        "id": 2,
+        "email": "member1@tixton.com",
+        "roles": "member",
+        "token_affiliate": null,
+        "token_referral": "tXOBaQ",
+        "social_avatar": null,
+        "profile": {
+            "data": {
+                "name": "Member 1 Tixton",
+                "date_of_birth": "2000-01-02",
+                "contact": null,
+                "city_residence": "Jakarta"
+            }
+        }
+    },
+    "meta": {
+        "code": 200,
+        "status": "OK"
+    }
+}
+```
+
+## User Credit
+
+**API endpoint**
+
+```
+GET /me/credit
+```
+
+**Response**
+
+```json
+{
+    "data": {
+        "id": 2,
+        "email": "member1@tixton.com",
+        "roles": "member",
+        "token_affiliate": null,
+        "token_referral": "tXOBaQ",
+        "social_avatar": null,
+        "profile": {
+            "data": {
+                "name": "Member 1 Tixton",
+                "date_of_birth": "2000-01-02",
+                "contact": null,
+                "city_residence": "Jakarta"
+            }
+        },
+        "credit": {
+            "data": {
+                "currency": "IDR",
+                "toncoin": {
+                    "credit": "630050.00",
+                    "active": "390080.00",
+                    "hold": "239970.00"
+                },
+                "cashable": {
+                    "credit": "10.00",
+                    "active": "10.00",
+                    "hold": "0.00"
+                },
+                "coupon": {
+                    "credit": "30.00",
+                    "active": "0.00",
+                    "hold": "30.00"
+                }
+            }
+        }
+    },
+    "meta": {
+        "code": 200,
+        "status": "OK"
+    }
+}
+```
