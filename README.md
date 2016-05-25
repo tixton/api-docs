@@ -76,7 +76,7 @@ Available currency
 **API endpoint**
 
 ``` 
-POST /auth/login 
+POST https://api.tixton.com/v1/auth/login 
 ```
 
 **Parameters**
@@ -91,7 +91,7 @@ POST /auth/login
 
 ```json
 {
-    email : "foo@bar.com"
+    email : "foo@bar.com",
     password : "fooBarMuse"
 }
 ```
@@ -150,7 +150,7 @@ Parameters
 
 HTTP : 200
 
-```header
+```
 HTTP/1.1 200 OK
 X-RateLimit-Limit : 200
 X-RateLimit-Remaining : 199
@@ -168,7 +168,7 @@ X-RateLimit-Remaining : 199
 
 HTTP : 422
 
-```header
+```
 HTTP/1.1 422 Unprocessable Entity
 X-RateLimit-Limit : 200
 X-RateLimit-Remaining : 199
@@ -714,3 +714,79 @@ GET /me/credit
     }
 }
 ```
+
+## Update profile
+
+**API endpoint**
+
+```
+PUT /me/profile
+```
+
+**Parameters**
+
+| Name              | Type      | Description           |
+|-------------------|-----------|---------------------- |
+| name              | string    | Name or user          |
+| date_of_birth     | date      | Example 1987-09-02    |
+| contact           | numeric   | Example +787832442    |
+| city_residence    | string    | Example Jakarta       |  
+
+**Response**
+
+```json
+
+``` 
+
+
+## Update profile
+
+**API endpoint**
+
+```
+PUT /me/currency
+```
+
+**Parameters**
+
+| Name              | Type      | Description               |
+|-------------------|-----------|---------------------------|
+| base_currency     | string    | Please see static data    |
+
+**Response**
+
+```json
+
+``` 
+
+## Change Password
+
+**API endpoint**
+
+```
+PUT /me/password
+```
+
+**Parameters**
+
+| Name              | Type      | Description                   |
+|-------------------|-----------|-------------------------------|
+| current           | string    | The current user password     |
+| password          | string    | The new user password         |
+| confirm_password  | string    | The password confimation      |
+
+**Example Request**
+
+```json
+{
+    current : "password",
+    password : "password123",
+    confirm_password : "password123"
+}
+```
+
+**Response**
+
+```json
+
+``` 
