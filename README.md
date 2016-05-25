@@ -4,9 +4,89 @@ All Tixton API end-points begin with https://api.tixton.com/v1/ and use the HTTP
 
 Response payloads are typically JSON; however, a few end-points return only a simple string identifier.
 
-# Rate Limiting
+## Rate Limiting
 
 The current Tixton API rate limit is 200 requests per minute.
+
+## Deleting Objects
+
+We do our best to have all our URLs be [RESTful](http://en.wikipedia.org/wiki/Representational_state_transfer). Every endpoint (URL) may support one of four different http verbs. GET requests fetch information about an object, POST requests create objects, PUT requests update objects, and finally DELETE requests will delete objects.
+
+## Structure
+
+Every response is contained by an envelope. That is, each response has a predictable set of keys with which you can expect to interact:
+
+```json
+{
+    "meta": {
+        "code": 200,
+        "status": "OK",
+        "pagination": {
+            "total": 18,
+            "count": 15,
+            "per_page": 15,
+            "current_page": 1,
+            "total_pages": 2,
+            "links": {
+                "next": "..."
+            }
+        }
+    },
+    "erros": {
+        "password": "The password field is required"
+    },
+    "data": {
+        ...
+    },
+    
+}
+```
+
+**META**
+
+The meta key is used to communicate extra information about the response to the developer. If all goes well, you'll only ever see a code key with value 200. On the meta key also include pagination key. The pagination key is used to provided a convenient way to access more data in any request for sequential data. Simply call the url in the ```next``` parameter and we'll respond with the next set of data.
+
+```json
+{
+    "meta": {
+        "code": 200,
+        "status": "OK",
+        "pagination": {
+
+        }
+    }
+}
+```
+
+However, sometimes things go wrong, and in that case you might see a response like:
+
+```json
+{
+    "meta": {
+        "error_type": "OAuthException",
+        "code": 400,
+        "error_message": "..."
+    }
+}
+```
+
+**ERRORS**
+
+The errors key is used to display extra information about the form validation errors, and in that case you might see a response like:
+
+```json
+{
+    "errors": {
+        "password": "The password field is required",
+        "name": "The name field is required"
+    },
+    "meta": {
+        "error_type": "OAuthException",
+        "code": 422,
+        "error_message": "..."
+    }
+}
+```
 
 # Static Data
 
@@ -69,6 +149,25 @@ Available currency
 | 4     | 4 stars       |
 | 5     | 5 stars       |
 
+# Errors Response
+
+## Missing field
+
+**Example response**
+
+```json
+{
+    errors: {
+        password: "The password field is required.",
+        name: "The name field is required."
+    },
+    meta: {
+        code: 422,
+        error_message: 'MISSING_FIELD'
+    }
+}
+```
+
 # User
 
 ## Login
@@ -76,7 +175,7 @@ Available currency
 **API endpoint**
 
 ``` 
-POST /auth/login 
+POST https://api.tixton.com/v1/auth/login 
 ```
 
 **Parameters**
@@ -91,14 +190,14 @@ POST /auth/login
 
 ```json
 {
-    email : "foo@bar.com"
-    password : "fooBarMuse"
+    "email": "foo@bar.com",
+    "password": "fooBarMuse"
 }
 ```
 
 **Response**
 
-```header
+```
 HTTP/1.1 200 OK
 X-RateLimit-Limit : 200
 X-RateLimit-Remaining : 199
@@ -136,13 +235,13 @@ Parameters
 
 ```json
 {
-    email : "foo@bar.com"
-    password : "fooBarMuse123"
-    date_of_birth : "1990-10-02"
-    contact : "+628798733423"
-    city_residence : "Bandung, Indonesia"
-    base_currency : "IDR"
-    aff : "PromoCode"
+    email: "foo@bar.com",
+    password: "fooBarMuse123",
+    date_of_birth: "1990-10-02",
+    contact: "+628798733423",
+    city_residence: "Bandung, Indonesia",
+    base_currency: "IDR",
+    aff: "PromoCode"
 }
 ```
 
@@ -150,7 +249,7 @@ Parameters
 
 HTTP : 200
 
-```header
+```
 HTTP/1.1 200 OK
 X-RateLimit-Limit : 200
 X-RateLimit-Remaining : 199
@@ -168,7 +267,7 @@ X-RateLimit-Remaining : 199
 
 HTTP : 422
 
-```header
+```
 HTTP/1.1 422 Unprocessable Entity
 X-RateLimit-Limit : 200
 X-RateLimit-Remaining : 199
@@ -241,7 +340,7 @@ X-RateLimit-Remaining : 199
 Example request
 
 ```
-GET /listing
+GET /search
 ```
 Parameter
 
@@ -250,9 +349,9 @@ Parameter
 | city_id       | integer   | Please see static data                    |
 | check_in      | date      | a valid date example ```2016-09-02```     |
 | check_out     | date      | a valid date example ```2016-09-02```     |
-| query         | string    |    x                                       |
+| query         | string    |    x                                      |
 | stars         | array     | 3, 4, 5                                   |
-| facility      | array     |     x                                      |
+| facility      | array     |    x                                      |
 
 Response
 
@@ -292,7 +391,7 @@ Response
                     "g_place_id": null,
                     "thumbnail": {
                         "name": "Primary",
-                        "url": "https://cdn03.tiket.photos/img/business/t/h/business-the-majesty-hotel-bandung-hotel-bandung4011.jpg",
+                        "url": "https://cdn03.tixton.com/img/business/t/h/business-the-majesty-hotel-bandung-hotel-bandung4011.jpg",
                         "extension": "jpg",
                         "mime": "image/jpg",
                         "width": null,
@@ -302,7 +401,7 @@ Response
                     "images": [
                         {
                             "name": "Primary",
-                            "url": "https://cdn03.tiket.photos/img/business/t/h/business-the-majesty-hotel-bandung-hotel-bandung4011.jpg",
+                            "url": "https://cdn03.tixton.com/img/business/t/h/business-the-majesty-hotel-bandung-hotel-bandung4011.jpg",
                             "extension": "jpg",
                             "mime": "image/jpg",
                             "width": null,
@@ -311,7 +410,7 @@ Response
                         },
                         {
                             "name": "Swimming Pool",
-                            "url": "https://cdn01.tiket.photos/img/business/t/h/business-the-majesty-hotel-bandung-hotel-bandung4011.jpg",
+                            "url": "https://cdn01.tixton.com/img/business/t/h/business-the-majesty-hotel-bandung-hotel-bandung4011.jpg",
                             "extension": "jpg",
                             "mime": "image/jpg",
                             "width": null,
@@ -389,25 +488,404 @@ Response
 
 ## View Detail
 
+**API endpoint**
+
 ```
-GET /listing/L3123122321
+GET /listing/:listing_id
 ```
 
-Response
+**Parameters**
+
+| Name          | type      | description       |
+|---------------|-----------|-------------------|
+| listing_id    | string    | Listing id        |
+| currency      | string    | See static data   |
+
+**Response**
+
+HTTP : 200
 
 ```json
-
-
+{
+    "data": {
+        "id": "L1604211535-EKUPQS",
+        "name": "Hotel Hyatt Jakarta",
+        "address": "Jalan M H Thamrin Kav 28-3, Thamrin, Jakarta, Indonesia 10230",
+        "relavance": 0,
+        "duration": 2,
+        "nights": "nights",
+        "check_in": "23 May 2016",
+        "check_out": "25 April 2016",
+        "type": "DELUXE",
+        "capacity": 8,
+        "price": {
+            "currency": "SGD",
+            "market": "0.08",
+            "per_night": "0.07",
+            "saving": "15"
+        },
+        "status": "On sale",
+        "hotel": {
+            "data": {
+                "id": 4,
+                "name": "Hotel Hyatt Jakarta",
+                "address": "Jalan M H Thamrin Kav 28-3, Thamrin, Jakarta, Indonesia 10230",
+                "star": 4,
+                "check_in_time": "13:00",
+                "check_out_time": "12:00",
+                "description": "Dolores a eius consequatur nihil nam eum. Odit molestiae placeat optio pariatur laborum maiores. Quos et repudiandae dignissimos ut quis voluptas quia. Quos quidem aut molestiae voluptatem minima cum odit consequatur. Pariatur rerum voluptatem reprehenderit laudantium et quasi. Ut quia reprehenderit accusantium esse et debitis. Non impedit est pariatur eum iste. Explicabo dolor corrupti officiis saepe officia. Autem quia non minus minus voluptates soluta esse omnis. Qui nemo explicabo qui molestias. Doloribus et sunt quas hic est. Error nulla similique temporibus quo.",
+                "ta_id": 307132,
+                "phone": "+1-309-587-8042",
+                "g_place_id": null,
+                "thumbnail": {
+                    "name": "Primary",
+                    "url": "http://api.tixton.app/images/hotel_init.png",
+                    "extension": "jpg",
+                    "mime": "image/jpg",
+                    "width": null,
+                    "height": null,
+                    "size": null
+                },
+                "images": {
+                    "0": {
+                        "name": "Primary",
+                        "url": "http://api.tixton.app/images/hotel_init.png",
+                        "extension": "jpg",
+                        "mime": "image/jpg",
+                        "width": null,
+                        "height": null,
+                        "size": null
+                    }
+                },
+                "location": {
+                    "lat": "-6.1939058",
+                    "lng": "106.8222198"
+                },
+                "facilities": []
+            }
+        },
+        "city": {
+            "data": {
+                "id": 1,
+                "name": "Jakarta",
+                "country": {
+                    "data": {
+                        "id": 1,
+                        "name": "Indonesia"
+                    }
+                }
+            }
+        }
+    },
+    "meta": {
+        "code": 200,
+        "message": "OK"
+    }
+}
 ```
+
+HTTP : 404
+
+```json
+{
+    "message": "Cannot find Listing",
+    "meta": {
+        "error_type": "PAGE_NOT_FOUND",
+        "code": 404,
+        "error_message": "Cannot find Listing"
+    }
+}
+```
+
 
 ## Buy Hotel
 
+### Creating PO
+
+**API endpoint**
+
+```
+POST /purchase/:serial
+```
+
+**Parameters**
+
+| Name                  | Type      | Description                   |
+|-----------------------|-----------|-------------------------------|
+| serial                | string    | Listing tixton serial number  |
+| name                  | string    | The guest name                |
+| email                 | string    | The guest email               |
+| contact               | numeric   | The guest contact             |
+| additional_request    | text      | The additional request        |
+| currency              | string    | Please see static data        |
+
+**Response**
+
+```json
+
+```
+
+### Payment
+
+**API endpoint**
+
+```
+PUT /purchase/:serial
+```
+
+**Parameters**
+
+| Name                  | Type      | Description                       |
+|-----------------------|-----------|-----------------------------------|
+| serial                | string    | Listing tixton serial number      |
+| purchase_order        | string    | Purchase order                    |
+| payment_method        | string    | Braintree, Bank Transfer, Credit  |
+
+**Response**
+
+```json
+
+```
+
 ## Sell Hotel
 
+**API endpoint**
+
+```
+POST /booking
+```
+
+**Parameters**
+
+| Name              | Type      | Description           |
+|-------------------|-----------|-----------------------|
+| country_id        | integer   | ..                    |
+| city_name         | string    | ..                    |
+| city_id           | integer   | ..                    |
+| hotel_name        | string    | ..                    |
+| check_in          | date      | ..                    |
+| check_out         | date      | ..                    |
+| room_type         | string    | ..                    |
+| booker_name       | string    | ..                    |
+| booker_contact    | numeric   | ..                    |
+| booker_passport   | string    | ..                    |
+| booking_src_id    | integer   | ..                    |
+| booking_src_info  | .         | ..                    |
+| booking_ref       | string    | ..                    |
+| agreement         | bool      | ..                    |
+| terms             | bool      | ..                    |
+
+
+**Response**
+
+```json
+{
+    "data": {
+        "id": "B1605231724-UBR7OW",
+        "city_name": "Jakarta",
+        "hotel_name": "Hotel Jakarta",
+        "check_in": "26 May 2016",
+        "check_out": "27 May 2016",
+        "booker_name": "Purwandi M",
+        "booking_src_info": null,
+        "booking_ref": "REF",
+        "remarks": null,
+        "booker_passport": "PASS2432",
+        "booker_contact": "+62873276432",
+        "aff_id": null,
+        "room_type": "Deluxe",
+        "place_id": null,
+        "meta": {},
+        "pin_number": null,
+        "status": "Rejected",
+        "bookSrc": {
+            "data": {
+                "id": 1,
+                "name": "Hotels.com",
+                "link": "http://www.hotels.com"
+            }
+        }
+    },
+    "meta": {
+        "code": 200,
+        "message": "Successfully sell booking."
+    }
+}
+```
+
+
 # Travel Wish
+
+## Get Travel Wish 
 
 ## Create 
 
 ## Detail Travel Wish
 
 # Profile
+
+## Me
+
+**API endpoint**
+
+```
+GET /me
+```
+
+**Response**
+
+```json
+{
+    "data": {
+        "id": 2,
+        "email": "member1@tixton.com",
+        "roles": "member",
+        "token_affiliate": null,
+        "token_referral": "tXOBaQ",
+        "social_avatar": null,
+        "profile": {
+            "data": {
+                "name": "Member 1 Tixton",
+                "date_of_birth": "2000-01-02",
+                "contact": null,
+                "city_residence": "Jakarta"
+            }
+        }
+    },
+    "meta": {
+        "code": 200,
+        "status": "OK"
+    }
+}
+```
+
+## User Credit
+
+**API endpoint**
+
+```
+GET /me/credit
+```
+
+**Response**
+
+```json
+{
+    "data": {
+        "id": 2,
+        "email": "member1@tixton.com",
+        "roles": "member",
+        "token_affiliate": null,
+        "token_referral": "tXOBaQ",
+        "social_avatar": null,
+        "profile": {
+            "data": {
+                "name": "Member 1 Tixton",
+                "date_of_birth": "2000-01-02",
+                "contact": null,
+                "city_residence": "Jakarta"
+            }
+        },
+        "credit": {
+            "data": {
+                "currency": "IDR",
+                "toncoin": {
+                    "credit": "630050.00",
+                    "active": "390080.00",
+                    "hold": "239970.00"
+                },
+                "cashable": {
+                    "credit": "10.00",
+                    "active": "10.00",
+                    "hold": "0.00"
+                },
+                "coupon": {
+                    "credit": "30.00",
+                    "active": "0.00",
+                    "hold": "30.00"
+                }
+            }
+        }
+    },
+    "meta": {
+        "code": 200,
+        "status": "OK"
+    }
+}
+```
+
+## Update profile
+
+**API endpoint**
+
+```
+PUT /me/profile
+```
+
+**Parameters**
+
+| Name              | Type      | Description           |
+|-------------------|-----------|---------------------- |
+| name              | string    | Name or user          |
+| date_of_birth     | date      | Example 1987-09-02    |
+| contact           | numeric   | Example +787832442    |
+| city_residence    | string    | Example Jakarta       |  
+
+**Response**
+
+```json
+
+``` 
+
+
+## Update profile
+
+**API endpoint**
+
+```
+PUT /me/currency
+```
+
+**Parameters**
+
+| Name              | Type      | Description               |
+|-------------------|-----------|---------------------------|
+| base_currency     | string    | Please see static data    |
+
+**Response**
+
+```json
+
+``` 
+
+## Change Password
+
+**API endpoint**
+
+```
+PUT /me/password
+```
+
+**Parameters**
+
+| Name              | Type      | Description                   |
+|-------------------|-----------|-------------------------------|
+| current           | string    | The current user password     |
+| password          | string    | The new user password         |
+| confirm_password  | string    | The password confimation      |
+
+**Example Request**
+
+```json
+{
+    current : "password",
+    password : "password123",
+    confirm_password : "password123"
+}
+```
+
+**Response**
+
+```json
+
+``` 
