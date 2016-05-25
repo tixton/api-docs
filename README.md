@@ -1,8 +1,7 @@
 # Introduction
 
-All Tixton API end-points begin with https://api.tixton.com/v1/ and use the HTTPS protocol.
-
-Response payloads are typically JSON; however, a few end-points return only a simple string identifier.
+All Tixton API end-points begin with https://api.tixton.com/v1/ and use the HTTPS protocol. Response
+payloads are typically JSON; however, a few end-points return only a simple string identifier.
 
 ## Rate Limiting
 
@@ -10,17 +9,40 @@ The current Tixton API rate limit is 200 requests per minute.
 
 ## Deleting Objects
 
-We do our best to have all our URLs be [RESTful](http://en.wikipedia.org/wiki/Representational_state_transfer). Every endpoint (URL) may support one of four different http verbs. GET requests fetch information about an object, POST requests create objects, PUT requests update objects, and finally DELETE requests will delete objects.
+We do our best to have all our URLs be [RESTful](http://en.wikipedia.org/wiki/Representational_state_transfer). 
+Every endpoint (URL) may support one of four different http verbs. GET requests fetch information 
+about an object, POST requests create objects, PUT requests update objects, and finally DELETE 
+requests will delete objects.
+
+## Authentication
+
+There are two ways to authenticate through Tixton API v1. Requests that require authentication will 
+return 404 Not Found, instead of 403 Forbidden, in some places. This is to prevent the accidental 
+leakage of private repositories to unauthorized users.
+
+**Auth Token** (sent in a header)
+
+```
+curl -H "Authorization: Bearer JWT-TOKEN" https://api.tixton.com/v1
+```
+
+**Auth Token** (sent as a parameter)
+
+```
+curl -H https://api.tixton.com/v1/:endpoint?token=JWT-TOKEN
+```
+
 
 ## Structure
 
-Every response is contained by an envelope. That is, each response has a predictable set of keys with which you can expect to interact:
+Every response is contained by an envelope. That is, each response has a predictable set of keys with 
+which you can expect to interact:
 
-```json
+```html
 {
     "meta": {
         "code": 200,
-        "status": "OK",
+        "message": "OK",
         "pagination": {
             "total": 18,
             "count": 15,
@@ -44,13 +66,17 @@ Every response is contained by an envelope. That is, each response has a predict
 
 **META**
 
-The meta key is used to communicate extra information about the response to the developer. If all goes well, you'll only ever see a code key with value 200. On the meta key also include pagination key. The pagination key is used to provided a convenient way to access more data in any request for sequential data. Simply call the url in the ```next``` parameter and we'll respond with the next set of data.
+The meta key is used to communicate extra information about the response to the developer. If all 
+goes well, you'll only ever see a code key with value 200. On the meta key also include pagination 
+key. The pagination key is used to provided a convenient way to access more data in any request for 
+sequential data. Simply call the url in the ```next``` parameter and we'll respond with the next set
+of data.
 
-```json
+```html
 {
     "meta": {
         "code": 200,
-        "status": "OK",
+        "message": "OK",
         "pagination": {
 
         }
@@ -60,33 +86,89 @@ The meta key is used to communicate extra information about the response to the 
 
 However, sometimes things go wrong, and in that case you might see a response like:
 
-```json
+```html
 {
     "meta": {
-        "error_type": "OAuthException",
         "code": 400,
-        "error_message": "..."
+        "message": "..."
     }
 }
 ```
 
 **ERRORS**
 
-The errors key is used to display extra information about the form validation errors, and in that case you might see a response like:
+The errors key is used to display extra information about the form validation errors, and in that 
+case you might see a response like:
 
-```json
+```html
 {
     "errors": {
         "password": "The password field is required",
         "name": "The name field is required"
     },
     "meta": {
-        "error_type": "OAuthException",
         "code": 422,
-        "error_message": "..."
+        "message": "..."
     }
 }
 ```
+
+**DATA**
+
+The data key is the meat of the response. It may be a list or dictionary, but either way this is 
+where you'll find the data you requested.
+
+Sometimes if you want to request an singgle resource, the data key structure will contains an json 
+object: 
+
+```html
+{
+    "data": {
+        "id": "PO201605251539-3FQ1AT",
+        "name": "Foobar",
+        "email": "foo@bar.com",
+        "contact": "+6298324233",
+    },
+    "meta": {
+        "code": 200,
+        "message": "OK"
+    }
+}
+```
+
+Sometimes if you want to request an collection resource, the data key structure will contains an array:
+
+```html
+{
+    "data": [
+        {
+            "id": "PO201605251539-3FQ1AT",
+            "name": "Foobar",
+            "email": "foo@bar.com",
+            "contact": "+6298324233",
+        },
+        {
+            "id": "PO201605251539-3FQ1AT",
+            "name": "Foobar",
+            "email": "foo@bar.com",
+            "contact": "+6298324233",
+        },
+    ],
+    "meta": {
+        "code": 200,
+        "message": "OK"
+    }
+}
+```
+
+## Payment Method
+
+| Code              | Description                                                                                                       |
+|-------------------|-------------------------------------------------------------------------------------------------------------------|
+| Braintree         | If you want to pay our inventory using credit card. We have a partnership with [braintree](https://braintree.com) |
+| ManualTransfer    | If you want to using bank transfer. You must pay before 1 (one) hour after you receive our invoice                |
+| Credit            | If you are our member, and you have enough credit, you can pay our inventory using this method                    |
+
 
 # Static Data
 
@@ -155,7 +237,7 @@ Available currency
 
 **Example response**
 
-```json
+```html
 {
     errors: {
         password: "The password field is required.",
@@ -163,7 +245,7 @@ Available currency
     },
     meta: {
         code: 422,
-        error_message: 'MISSING_FIELD'
+        message: 'VALIDATION_FAILED'
     }
 }
 ```
@@ -181,14 +263,14 @@ POST https://api.tixton.com/v1/auth/login
 **Parameters**
 
 
-| Name     | Type   | Description                       |
-|----------|--------|-----------------------------------|
-| email    | string | A valid email address from member |
-| password | string | A valid password form member      |
+| Name     | Type   | Description                                       |
+|----------|--------|---------------------------------------------------|
+| email    | string | **Required**. A valid email address from member   |
+| password | string | **Required**. A valid password form member        |
 
 **Example request**
 
-```json
+```html
 {
     "email": "foo@bar.com",
     "password": "fooBarMuse"
@@ -197,51 +279,76 @@ POST https://api.tixton.com/v1/auth/login
 
 **Response**
 
+HTTP : 200
+
+If credentials is valid, you will be response like:
+
 ```
 HTTP/1.1 200 OK
 X-RateLimit-Limit : 200
 X-RateLimit-Remaining : 199
 ```
 
-```json
+```html
 {
-    "token": "eoJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjQsImlzcyI6Imh0dHA6XC9cL2FwaS50aXh0b24uYXBwXC92MVwvYXV0aFwvbG9niW4iLCJpYXQiOjEdNjM3MTI1MjMsImV4cCI6MTQ2MzcxNjEyMywibmJmIjoxNDYzNzEyNTIzLCJqdGkiOiI3YmU5MjVlMzk1NGIxZmVhZjcwMGpzN2ExNjRhMzM0NyJ9.sE5nXyTiaYe4Q9aUZafoVw73c-uWGUO9ofOLUlq9ano"
+    "data": {
+        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0L3YxL2F1dGgvbG9naW4iLCJpYXQiOjE0NjQxNTQ0MzksImV4cCI6MTQ2NDE1ODAzOSwibmJmIjoxNDY0MTU0NDM5LCJqdGkiOiI4MTZkY2Q1ZDljMzA2MGMxY2FmNzhlOWQ1NGIxZmUzYyIsInN1YiI6M30.kwG8saUnElsD1tCS3FZMFiuHtSVfl8PF2XJ6UYDNebA"
+    },
+    "meta": {
+        "code": 200,
+        "message": "USER_LOGGED_IN"
+    }
 }
 ```
 
-You must keep this token and add into parameter whenever you access our API.
+You must keep this token and add into HEADER Authorization parameter whenever you access our API.
+
+HTTP : 401
+
+But if the credentials is invalid you wull see a response like:
+
+```html
+{
+    "meta": {
+        "code": 401,
+        "message": "INVALID_CREDENTIALS"
+    }
+}
+```
+
+
 
 ## Register
 
 **API endpoint**
 
 ``` 
-POST /auth/register 
+POST https://api.tixton.com/v1/auth/register 
 ```
 
-Parameters
+**Parameters**
 
-| Name              | Type          | Description                               |
-|-------------------|---------------|-------------------------------------------|
-| email             | string        | A valid user email                        |
-| password          | string        | A valid password from user, min 6 char    |
-| date_of_birth     | date          | Date of birth, example ```1988-10-02```,  min age 16 years old  |
-| contact           | numeric       | Phone number                              |
-| city_residence    | string        | City of residence                         |
-| base_currency     | integer       | Please see currency section for details   |
-| aff               | alphanumeric  | Promo code ```(optional)```               |
+| Name              | Type          | Description                                               |
+|-------------------|---------------|-----------------------------------------------------------|
+| email             | string        | **Required**. A valid user email                          |
+| password          | string        | **Required**. A valid password from user, min 6 char      |
+| date_of_birth     | date          | **Required**. User date of birth, example ```1988-10-02```,  min age 16 years old  |
+| contact           | numeric       | **Required**. Phone number                                |
+| city_residence    | string        | **Required**. City of residence                           |
+| base_currency     | integer       | **Required**. Please see currency section for details     |
+| aff               | string        | Promo code                                                |
 
 **Example request**
 
-```json
+```html
 {
-    email: "foo@bar.com",
-    password: "fooBarMuse123",
-    date_of_birth: "1990-10-02",
-    contact: "+628798733423",
-    city_residence: "Bandung, Indonesia",
-    base_currency: "IDR",
-    aff: "PromoCode"
+    "email": "foo@bar.com",
+    "password": "fooBarMuse123",
+    "date_of_birth": "1990-10-02",
+    "contact": "+628798733423",
+    "city_residence": "Bandung, Indonesia",
+    "base_currency": "IDR",
+    "aff": "PromoCode"
 }
 ```
 
@@ -255,12 +362,12 @@ X-RateLimit-Limit : 200
 X-RateLimit-Remaining : 199
 ```
 
-```json
+```html
 {
-    "message": "User is created.",
-    "meta":{
+    "data": [],
+    "meta": {
         "code": 200,
-        "status": "OK"
+        "message": "USER_CREATED"
     }
 }
 ```
@@ -273,10 +380,9 @@ X-RateLimit-Limit : 200
 X-RateLimit-Remaining : 199
 ```
 
-```json
+```html
 {
-    "message": "Validation failed",
-    "errors":{
+    "errors": {
         "email": "The email has already been taken.",
         "password": "The password field is required.",
         "name": "The name field is required.",
@@ -285,9 +391,9 @@ X-RateLimit-Remaining : 199
         "city_residence": "The city of residence field is required.",
         "base_currency": "The currency field is required."
     },
-    "meta":{
+    "meta": {
         "code": 422,
-        "error_message": "MISSING_FIELD"
+        "message": "VALIDATION_FAILED"
     }
 }
 ```
@@ -303,33 +409,47 @@ After user successfully registered our system. The user need verify their email 
 **API endpoint**
 
 ```
-GET /auth/activate/:confirmation_code
+GET https://api.tixton.com/v1/auth/activate/:confirmation_code
 ```
 
 **Parameters**
 
-| Name              | Type              | Description                                   |
-| ------------------|-------------------|-----------------------------------------------|
-| confirmation_code | string/integer    | Unqiue code in the email address verification |   
+| Name              | Type      | Description                                                 |
+| ------------------|-----------|-------------------------------------------------------------|
+| confirmation_code | string    | **Required**. Unique code in the email address verification |   
 
 
 **Response**
 
-```header
+HTTP : 200
+
+```
 HTTP/1.1 200 OK
 X-RateLimit-Limit : 200
 X-RateLimit-Remaining : 199
 ```
 
-```json
+```html
 {
-    "message": "USER_IS_ACTIVATED",
-    "meta":{
+    "data": [],
+    "meta": {
         "code": 200,
-        "status": "OK"
+        "message": "USER_ACTIVATED"
     }
 }
 ```
+
+HTTP : 400
+
+If the token is not found or the user is already activate their token.
+
+```html
+{
+    "meta": {
+        "code": 400,
+        "message": "TOKEN_NOT_FOUND"
+    }
+}```
 
 
 
@@ -337,26 +457,40 @@ X-RateLimit-Remaining : 199
 
 ## Search
 
-Example request
+The Search API is optimized to help you find the specific item you're looking for. Think of it the 
+way you think of performing a search on Google. It's designed to help you find the one result you're 
+looking for (or maybe the few results you're looking for). Just like searching on Google, you sometimes 
+want to see a few pages of search results so that you can find the item that best meets your needs. 
+To satisfy that need, the Tixton Search API provides up to 1,000 results for each search.
+
+**API endpoint**
 
 ```
-GET /search
+GET https://api.tixton.com/v1/search
 ```
-Parameter
+**Parameter**
 
 | Name          | Type      | Description                               |
 |---------------|-----------|-------------------------------------------|
 | city_id       | integer   | Please see static data                    |
 | check_in      | date      | a valid date example ```2016-09-02```     |
 | check_out     | date      | a valid date example ```2016-09-02```     |
-| query         | string    |    x                                      |
-| stars         | array     | 3, 4, 5                                   |
-| facility      | array     |    x                                      |
+| query         | string    | The search keywords, as well as any qualifiers. |
+| stars         | array     | The hotel stars 3, 4, 5                   |
+| facility      | array     | Please see static data                    |
+| currency      | string    | Please see static data                    |
 
-Response
+**Example request**
 
-```json
+```
+GET https://api.tixton.com/v1/search?city_id=1&check_in=2016-02-02&check_out=2016-02-05&query=Fave&stars=3,4&facility=101,102,99&currency=IDR
+```
 
+**Response**
+
+HTTP : 200
+
+```html
 {
     "data": [
         {
@@ -465,9 +599,7 @@ Response
                 }
             }
         },
-        {
-        
-        }
+        ...
     ],
     "meta": {
         "code": 200,
@@ -478,12 +610,23 @@ Response
             "current_page": 1,
             "total_pages": 2,
             "links": {
-                "next": "http://tixton.app/api/v1/search?query=&city_id=&country_id=&check_in=&check_out=&facilities=&stars=&order=&currency=IDR&locale=en&page=2"
+                "next": "...",
+                "prev": "..."
             }
         }
     }
 }
+```
 
+HTTP : 404
+
+```html
+{
+    "meta": {
+        "code": 404,
+        "message": "SEARCH_NOT_FOUND"
+    }
+}
 ```
 
 ## View Detail
@@ -491,21 +634,21 @@ Response
 **API endpoint**
 
 ```
-GET /listing/:listing_id
+GET https://api.tixton.com/v1/listing/:listing_id
 ```
 
 **Parameters**
 
-| Name          | type      | description       |
-|---------------|-----------|-------------------|
-| listing_id    | string    | Listing id        |
-| currency      | string    | See static data   |
+| Name          | type      | description               |
+|---------------|-----------|---------------------------|
+| listing_id    | string    | **Required**. Listing id  |
+| currency      | string    | See static data           |
 
 **Response**
 
 HTTP : 200
 
-```json
+```html
 {
     "data": {
         "id": "L1604211535-EKUPQS",
@@ -533,7 +676,7 @@ HTTP : 200
                 "star": 4,
                 "check_in_time": "13:00",
                 "check_out_time": "12:00",
-                "description": "Dolores a eius consequatur nihil nam eum. Odit molestiae placeat optio pariatur laborum maiores. Quos et repudiandae dignissimos ut quis voluptas quia. Quos quidem aut molestiae voluptatem minima cum odit consequatur. Pariatur rerum voluptatem reprehenderit laudantium et quasi. Ut quia reprehenderit accusantium esse et debitis. Non impedit est pariatur eum iste. Explicabo dolor corrupti officiis saepe officia. Autem quia non minus minus voluptates soluta esse omnis. Qui nemo explicabo qui molestias. Doloribus et sunt quas hic est. Error nulla similique temporibus quo.",
+                "description": "....",
                 "ta_id": 307132,
                 "phone": "+1-309-587-8042",
                 "g_place_id": null,
@@ -586,65 +729,377 @@ HTTP : 200
 
 HTTP : 404
 
-```json
+```html
 {
-    "message": "Cannot find Listing",
     "meta": {
-        "error_type": "PAGE_NOT_FOUND",
         "code": 404,
-        "error_message": "Cannot find Listing"
+        "message": "LISTING_NOT_FOUND"
     }
 }
 ```
 
-
-## Buy Hotel
-
-### Creating PO
+## Creating Purchase Order
 
 **API endpoint**
 
 ```
-POST /purchase/:serial
+POST https://api.tixton.com/v1/purchase/:serial
 ```
 
 **Parameters**
 
-| Name                  | Type      | Description                   |
-|-----------------------|-----------|-------------------------------|
-| serial                | string    | Listing tixton serial number  |
-| name                  | string    | The guest name                |
-| email                 | string    | The guest email               |
-| contact               | numeric   | The guest contact             |
-| additional_request    | text      | The additional request        |
-| currency              | string    | Please see static data        |
+| Name                  | Type      | Description                                                       |
+|-----------------------|-----------|-------------------------------------------------------------------|
+| serial                | string    | **Required**. Listing tixton serial number                        |
+| name                  | string    | **Required**. The guest name                                      |
+| email                 | string    | **Required**. The guest email                                     |
+| contact               | numeric   | **Required**. The guest contact                                   |
+| additional_request    | text      | The additional request                                            |
+| currency              | string    | Please see static data, if not provided we will fallback into IDR |
+
+**Notes**
+
+If you passing HEADER ```Authorization: Bearer JWT-TOKEN``` on your request, our system will be 
+verified your token and if your token is match in our user record, we will be charge some amount in 
+user credit based on token request.
+
+**Example request**
+
+```html
+{
+    "name": "Foobar",
+    "email": "foo@bar.com",
+    "contact": "+6298324233",
+    "additional_request": "Lula lop",
+}
+```
 
 **Response**
 
-```json
+HTTP : 200
 
+```html
+{
+    "data": {
+        "id": "PO201605251539-3FQ1AT",
+        "name": "Foobar",
+        "email": "foo@bar.com",
+        "contact": "+6298324233",
+        "additional_request": "Lula lop",
+        "toncoin": 390080,
+        "toncoin_cashable": 10,
+        "bonus_credit": 0,
+        "payable": 59910,
+        "stay_night": 2,
+        "check_in": "2017-02-18",
+        "check_out": "2017-02-20",
+        "price": {
+            "currency": "IDR",
+            "price": 450000
+        },
+        "token": "3gRq1234wewebhwe78y23423mnbhgwghfeweewreuI",
+        "payment": {
+            "status": "Pending",
+            "method": null,
+            "valid_until": null
+        },
+        "listing": {
+            ...
+        }
+    },
+    "meta": {
+        "code": 200,
+        "message": "OK"
+    }
+}
 ```
 
-### Payment
+HTTP : 404
+
+Jika listing tidak ditemukan, atau listing sudah di beli orang lain
+
+```html
+{
+    "meta": {
+        "code": 404,
+        "message": "LISTING_NOT_FOUND"
+    }
+}
+```
+
+HTTP 500
+
+Jika kami tidak dapat memproses pembayaran anda.
+
+```html
+{
+    "meta": {
+        "code": 500,
+        "message": "FAILED_CREATE_PO"
+    }
+}
+```
+
+## Payment Purchase Order
+
+Untuk melakukan pembayaran kami menggunakan 3 metode (lihat pada payment method).;
+
+1 Credit
+
+Opsi pembayaran ini akan muncul ketika ```payable``` key bernilai 0. Ini berarti seluruh biaya
+pembelian inventory dapat di bebankan pada credit yang anda punyai. Opsi ini hanya muncul bila
+anda sedang **LOGGED IN** di sistem kami atau ketika anda membuat purchase order anda mengirimkan
+header JWTToken yang valid terhadap akun anda. Untuk setup payment dapat melihat contoh sebagai
+berikut :
+
+```html
+<form class="" method="POST" action="https://api.tixton.com/v1/purchase/L23423423432-3FQ1AT">
+  <input type="hidden" name="payment_method" value="Credit">
+  <input type="hidden" name="_method" value="PUT">
+  <input type="hidden" name="purchase_order" value="PO201605251539-3FQ1AT">
+  <div class="text-center">
+    <button type="submit" class="btn btn-orange btn-block btn-lg">PAY USING CREDIT</button>
+  </div>
+</form>
+```
+
+2 Braintree (credit card)
+
+Pembayaran dengan metode ini dilakukan jika anda ingin membayar dengan menggunakan kartu kredit.
+Berdasarkan data purchase order di atas, maka untuk setup payment dapat melihat contoh sebagai 
+berikut :
+
+```html
+<form class="" method="POST" action="https://api.tixton.com/v1/purchase/L23423423432-3FQ1AT">
+  <input type="hidden" name="payment_method" value="Braintree">
+  <input type="hidden" name="_method" value="PUT">
+  <input type="hidden" name="purchase_order" value="PO201605251539-3FQ1AT">
+  <div id="bt_dropin"></div>
+  <div class="text-center">
+    <button type="submit" class="btn btn-orange btn-block btn-lg">PAY IDR 59910</button>
+  </div>
+</form>
+<script src="https://js.braintreegateway.com/v2/braintree.js"></script>
+<script>
+  function setupBT (argument) {
+    braintree.setup("3gRq1234wewebhwe78y23423mnbhgwghfeweewreuI", "dropin", {
+      container: 'bt_dropin'
+    });
+  }
+  if (window.addEventListener) {
+    window.addEventListener("load", setupBT, false);
+  } else if (window.attachEvent) {
+    window.attachEvent("onload", setupBT);
+  } else {
+    window.onload = setupBT;
+  }
+</script>
+```
+
+3 Bank Transfer
+
+Pembayaran dengan menggunakan bank transfer. Pembayaran dengan metode ini hanya berlaku untuk mata
+uang IDR. Setup pembayaran dapat melihat contoh sebagai berikut :
+
+```html
+<form class="" method="POST" action="https://api.tixton.com/v1/purchase/L23423423432-3FQ1AT">
+  <input type="hidden" name="payment_method" value="ManualTransfer">
+  <input type="hidden" name="_method" value="PUT">
+  <input type="hidden" name="purchase_order" value="PO201605251539-3FQ1AT">
+  <div class="text-center">
+    <button type="submit" class="btn btn-orange btn-block btn-lg">BANK TRANSFER</button>
+  </div>
+</form>
+```
 
 **API endpoint**
 
 ```
-PUT /purchase/:serial
+PUT https://api.tixton.com/v1/purchase/:listing_serial
 ```
 
 **Parameters**
 
-| Name                  | Type      | Description                       |
-|-----------------------|-----------|-----------------------------------|
-| serial                | string    | Listing tixton serial number      |
-| purchase_order        | string    | Purchase order                    |
-| payment_method        | string    | Braintree, Bank Transfer, Credit  |
+| Name                  | Type      | Description                                                                       |
+|-----------------------|-----------|-----------------------------------------------------------------------------------|
+| listing_serial        | string    | **Required**. Listing tixton serial number                                        |
+| purchase_order        | string    | **Required**. Purchase order                                                      |
+| payment_method        | string    | **Required**. Braintree, Bank Transfer, Credit                                    |
+| payment_method_nonce  | string    | **Required** if payment method using Braintree (generated by braintree client)    |
 
 **Response**
 
-```json
+HTTP : 200
 
+```html
+{
+    "data": {
+        "id": "PO201605251539-3FQ1AT",
+        "name": "Foobar",
+        "email": "foo@bar.com",
+        "contact": "+6298324233",
+        "additional_request": "Lula lop",
+        "toncoin": "390080.00",
+        "toncoin_cashable": "10.00",
+        "bonus_credit": "0.00",
+        "payable": "59910.00",
+        "stay_night": 2,
+        "check_in": "18 February 2017",
+        "check_out": "20 February 2017",
+        "price": {
+            "currency": "IDR",
+            "price": "450000.00"
+        },
+        "token": null,
+        "payment": {
+            "status": "Successful",
+            "method": "Braintree",
+            "valid_until": null // Jika menggunakan brank transfer valid until akan berisi waktu
+        },
+        "listing": {
+            ...
+        }
+    },
+    "meta": {
+        "code": 200,
+        "message": "SUCCESSFULL"
+    }
+}
+```
+
+HTTP : 404
+
+Jika listing tidak ditemukan, atau listing sudah di beli orang lain
+
+```html
+{
+    "meta": {
+        "code": 404,
+        "message": "PO_NOT_FOUND"
+    }
+}
+```
+
+HTTP 500
+
+Jika kami tidak dapat memproses pembayaran anda.
+
+```html
+{
+    "meta": {
+        "code": 500,
+        "message": "UNABLE_TO_PROCESS"
+    }
+}
+```
+
+## Confirm Purchase Order
+
+Jika anda menggunakan metode pembayaran bank transfer anda harus melakukan konfirmasi pembayaran. 
+Untuk itu kami menyiapkan enpoint untuk melakukan hal tersebut.
+
+**API endpoint**
+
+```
+POST https://api.tixton.com/v1/purchase/confirm
+```
+
+**Parameters**
+
+| Name              | Type      | Description                               |
+|-------------------|-----------|-------------------------------------------|
+| serial_number     | string    | **Required**. Purchase order number       |
+| bank_name         | string    | **Required**. The bank name               |
+| bank_account      | string    | **Required**. Your account bank number    |
+| bank_account_name | string    | **Required**.                             |
+| amount            | numeric   | **Required**.                             |
+
+**Example request**
+
+```html
+{
+    "serial_number": "PO201605251539-3FQ1AT",
+    "bank_name": "BANK ABC",
+    "bank_account": "999-2344-3334",
+    "bank_account_name": "Edo Setiabudi",
+    "amount": "59910.00"
+}
+```
+
+**Response**
+
+HTTP : 200
+
+```html
+{
+    "data": {
+        "id": "PO201605251731-FFEDRE",
+        "name": "Foobar",
+        "email": "foo@bar.com",
+        "contact": "+6298324233",
+        "additional_request": "Lula lop",
+        "toncoin": "0.00",
+        "toncoin_cashable": "0.00",
+        "bonus_credit": "0.00",
+        "payable": "450000.00",
+        "stay_night": 2,
+        "check_in": "2017-02-18",
+        "check_out": "2017-02-20",
+        "price": {
+            "currency": "IDR",
+            "price": "450000.00"
+        },
+        "token": null,
+        "payment": {
+            "status": "Successful",
+            "method": "Bank Transfer",
+            "valid_until": "2016-05-25 18:31:43"
+        },
+        "listing": {
+            ...
+        }
+    },
+    "meta": {
+        "code": 200,
+        "message": "SUCCESSFULL"
+    }
+}
+```
+
+HTTP : 404
+
+```html
+{
+    "meta": {
+        "code": 404,
+        "message": "PURCHASE_NOT_FOUND"
+    }
+}
+```
+
+HTTP : 442
+
+```html
+{
+    "errors": {
+        "bank_account": "The bank account must be a number."
+    },
+    "meta": {
+        "code": 422,
+        "message": "VALIDATION_FAILED"
+    }
+}
+```
+
+HTTP : 500
+
+```html
+{
+    "meta": {
+        "code": 500,
+        "message": "UNABLE_TO_PROCESS"
+    }
+}
 ```
 
 ## Sell Hotel
@@ -652,7 +1107,7 @@ PUT /purchase/:serial
 **API endpoint**
 
 ```
-POST /booking
+POST https://api.tixton.com/v1/booking
 ```
 
 **Parameters**
@@ -678,7 +1133,9 @@ POST /booking
 
 **Response**
 
-```json
+HTTP : 200 
+
+```html
 {
     "data": {
         "id": "B1605231724-UBR7OW",
@@ -713,14 +1170,170 @@ POST /booking
 }
 ```
 
+HTTP : 422
+
+```html
+{
+    "errors": {
+        "city_name": "The city name field is required."
+    },
+    "meta": {
+        "code": 422,
+        "message": "VALIDATION_FAILED"
+    }
+}
+```
 
 # Travel Wish
 
-## Get Travel Wish 
-
 ## Create 
 
+**API endpoint**
+
+```
+POST https://api.tixton.com/v1/travel-wish
+```
+
+**Parameters**
+
+| Name          | Type      | Description               |
+|---------------|-----------|---------------------------|
+| name          | string    | Your name                 |
+| email         | string    | Your valid email address  |
+| contact       | numeric   | Your phone number         |
+| city_id       | integer   | Please see static data    |
+| check_in      | date      | Example 2017-02-01        |
+| check_out     | date      | Example 2017-02-02        |
+| num_rooms     | integer   | Number of rooms           |
+| notes         | text      | Your traveling notes      |
+| is_flexible   | boolean   | true or false             |
+
+**Example requests**
+
+```html
+{
+    'name': 'Member 2 Tixton',
+    'email': 'member2@tixton.com',
+    'contact': '08983125680',
+    'city_id': 4,
+    'check_in': "2017-02-01",
+    'check_out': "2017-02-02",
+    'num_rooms': 2,
+    'notes': 'Ini dari testing doang',
+    'is_flexible': true
+}
+```
+
+**Response**
+
+HTTP : 200
+
+```html
+{
+    "meta": {
+        "code": 200,
+        "message": "CREATED"
+    }
+}
+```
+
+HTTP : 500
+
+```html
+{
+    "meta": {
+        "code": 500,
+        "message": "UNABLE_CREATE"
+    }
+}
+```
+
+## Get Travel Wish 
+
+**API endpoint**
+
+```
+GET http://api.tixton.com/v1/travel-wish
+GET http://api.tixton.com/v1/me/travel-wish
+```
+
+**Response**
+
+```html
+{
+    "data": [
+        {
+            "id": 2,
+            "check_in": "2017-04-22",
+            "check_out": "2017-04-24",
+            "is_flexible": false,
+            "is_completed": false,
+            "num_rooms": 2,
+            "token": "ujiCobaS",
+            "city": {},
+            "listing": {
+                data: [] // available listings
+            },
+            "user": {}
+        },
+        {
+            ...
+        }
+    ],
+    "meta": {
+        "code": 200,
+        "message": "OK",
+        "pagination": {
+            "total": 2,
+            "count": 2,
+            "per_page": 15,
+            "current_page": 1,
+            "total_pages": 1,
+            "links": []
+        }
+    }
+}
+```
+
 ## Detail Travel Wish
+
+
+**API endpoint**
+
+```
+GET http://api.tixton.com/v1/travel-wish/:token-travel-wish
+```
+
+**Parameters**
+
+| Name                  | Type      | Description           |
+|-----------------------|-----------|-----------------------|
+| :token-travel-wish    | string    | Token travel wish     |
+
+**Response**
+
+```html
+{
+    "data": {
+        "id": 2,
+        "check_in": "2017-04-22",
+        "check_out": "2017-04-24",
+        "is_flexible": false,
+        "is_completed": false,
+        "num_rooms": 2,
+        "token": "ujiCobaS",
+        "city": {},
+        "listing": {
+            data: [] // available listings
+        },
+        "user": {}
+    },
+    "meta": {
+        "code": 200,
+        "message": "OK",
+    }
+}
+```
 
 # Profile
 
@@ -734,7 +1347,7 @@ GET /me
 
 **Response**
 
-```json
+```html
 {
     "data": {
         "id": 2,
@@ -754,7 +1367,7 @@ GET /me
     },
     "meta": {
         "code": 200,
-        "status": "OK"
+        "message": "OK"
     }
 }
 ```
@@ -769,7 +1382,7 @@ GET /me/credit
 
 **Response**
 
-```json
+```html
 {
     "data": {
         "id": 2,
@@ -809,7 +1422,7 @@ GET /me/credit
     },
     "meta": {
         "code": 200,
-        "status": "OK"
+        "message": "OK"
     }
 }
 ```
@@ -819,7 +1432,7 @@ GET /me/credit
 **API endpoint**
 
 ```
-PUT /me/profile
+PUT https://api.tixton.com/v1/me/profile
 ```
 
 **Parameters**
@@ -831,19 +1444,47 @@ PUT /me/profile
 | contact           | numeric   | Example +787832442    |
 | city_residence    | string    | Example Jakarta       |  
 
+**Example request**
+
+```html
+{
+    "name": "Foobar",
+    "date_of_birth": "1995-09-02",
+    "contact": "+3242332434",
+    "city_residence": "Jakarta"
+}
+```
+
 **Response**
 
-```json
+HTTP : 200
 
+```html
+{
+    "meta": {
+        "code": 200,
+        "message": "PROFILE_UPDATED"
+    }
+}
 ``` 
 
+HTTP : 500
 
-## Update profile
+```html
+{
+    "meta": {
+        "code": 500,
+        "message": "FAILED_UPDATE"
+    }
+}
+``` 
+
+## Update currency
 
 **API endpoint**
 
 ```
-PUT /me/currency
+PUT https://api.tixton.com/v1/me/currency
 ```
 
 **Parameters**
@@ -852,10 +1493,45 @@ PUT /me/currency
 |-------------------|-----------|---------------------------|
 | base_currency     | string    | Please see static data    |
 
+**Example request**
+
+```html
+{
+    "base_currency": "IDR"
+}
+```
+
 **Response**
 
-```json
+HTTP : 200
 
+```html
+{
+    "meta": {
+        "code": 200,
+        "message": "CURRENCY_CHANGED"
+    }
+}
+``` 
+
+HTTP : 400
+
+```html
+{
+    "meta": {
+        "code": 400,
+        "message": "FAILED_UPDATE"
+    }
+}
+``` 
+
+```html
+{
+    "meta": {
+        "code": 400,
+        "message": "USER_HAVE_TRANSACTION"
+    }
+}
 ``` 
 
 ## Change Password
@@ -863,7 +1539,7 @@ PUT /me/currency
 **API endpoint**
 
 ```
-PUT /me/password
+PUT https://api.tixton.com/v1/me/password
 ```
 
 **Parameters**
@@ -876,7 +1552,7 @@ PUT /me/password
 
 **Example Request**
 
-```json
+```html
 {
     current : "password",
     password : "password123",
@@ -886,6 +1562,47 @@ PUT /me/password
 
 **Response**
 
-```json
+HTTP : 200
 
+```html
+{
+    "meta": {
+        "code": 200,
+        "message": "PASSWORD_CHANGED"
+    }
+}
 ``` 
+
+
+HTTP : 400
+
+```html
+{
+    "meta": {
+        "code": 400,
+        "message": "CURRENT_PASSWORD_SAME_NEW_PASSWORD"
+    }
+}
+``` 
+
+HTTP : 400
+
+```html
+{
+    "meta": {
+        "code": 400,
+        "message": "CURRENT_PASSWORD_INVALID"
+    }
+}
+```
+
+HTTP : 500
+
+```html
+{
+    "meta": {
+        "code": 500,
+        "message": "UNABLE_CHANGE"
+    }
+}
+```
