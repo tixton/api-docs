@@ -69,6 +69,10 @@ Available currency
 | 4     | 4 stars       |
 | 5     | 5 stars       |
 
+# Errors Response
+
+## 
+
 # User
 
 ## Login
@@ -91,14 +95,14 @@ POST https://api.tixton.com/v1/auth/login
 
 ```json
 {
-    email : "foo@bar.com",
-    password : "fooBarMuse"
+    email: "foo@bar.com",
+    password: "fooBarMuse"
 }
 ```
 
 **Response**
 
-```header
+```
 HTTP/1.1 200 OK
 X-RateLimit-Limit : 200
 X-RateLimit-Remaining : 199
@@ -136,13 +140,13 @@ Parameters
 
 ```json
 {
-    email : "foo@bar.com"
-    password : "fooBarMuse123"
-    date_of_birth : "1990-10-02"
-    contact : "+628798733423"
-    city_residence : "Bandung, Indonesia"
-    base_currency : "IDR"
-    aff : "PromoCode"
+    email: "foo@bar.com",
+    password: "fooBarMuse123",
+    date_of_birth: "1990-10-02",
+    contact: "+628798733423",
+    city_residence: "Bandung, Indonesia",
+    base_currency: "IDR",
+    aff: "PromoCode"
 }
 ```
 
