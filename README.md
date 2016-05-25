@@ -4,9 +4,89 @@ All Tixton API end-points begin with https://api.tixton.com/v1/ and use the HTTP
 
 Response payloads are typically JSON; however, a few end-points return only a simple string identifier.
 
-# Rate Limiting
+## Rate Limiting
 
 The current Tixton API rate limit is 200 requests per minute.
+
+## Deleting Objects
+
+We do our best to have all our URLs be [RESTful](http://en.wikipedia.org/wiki/Representational_state_transfer). Every endpoint (URL) may support one of four different http verbs. GET requests fetch information about an object, POST requests create objects, PUT requests update objects, and finally DELETE requests will delete objects.
+
+## Structure
+
+Every response is contained by an envelope. That is, each response has a predictable set of keys with which you can expect to interact:
+
+```json
+{
+    "meta": {
+        "code": 200,
+        "status": "OK",
+        "pagination": {
+            "total": 18,
+            "count": 15,
+            "per_page": 15,
+            "current_page": 1,
+            "total_pages": 2,
+            "links": {
+                "next": "..."
+            }
+        }
+    },
+    "erros": {
+        "password": "The password field is required"
+    },
+    "data": {
+        ...
+    },
+    
+}
+```
+
+**META**
+
+The meta key is used to communicate extra information about the response to the developer. If all goes well, you'll only ever see a code key with value 200. On the meta key also include pagination key. The pagination key is used to provided a convenient way to access more data in any request for sequential data. Simply call the url in the ```next``` parameter and we'll respond with the next set of data.
+
+```json
+{
+    "meta": {
+        "code": 200,
+        "status": "OK",
+        "pagination": {
+
+        }
+    }
+}
+```
+
+However, sometimes things go wrong, and in that case you might see a response like:
+
+```json
+{
+    "meta": {
+        "error_type": "OAuthException",
+        "code": 400,
+        "error_message": "..."
+    }
+}
+```
+
+**ERRORS**
+
+The errors key is used to display extra information about the form validation errors, and in that case you might see a response like:
+
+```json
+{
+    "errors": {
+        "password": "The password field is required",
+        "name": "The name field is required"
+    },
+    "meta": {
+        "error_type": "OAuthException",
+        "code": 422,
+        "error_message": "..."
+    }
+}
+```
 
 # Static Data
 
@@ -71,7 +151,22 @@ Available currency
 
 # Errors Response
 
-## 
+## Missing field
+
+**Example response**
+
+```json
+{
+    errors: {
+        password: "The password field is required.",
+        name: "The name field is required."
+    },
+    meta: {
+        code: 422,
+        error_message: 'MISSING_FIELD'
+    }
+}
+```
 
 # User
 
@@ -95,8 +190,8 @@ POST https://api.tixton.com/v1/auth/login
 
 ```json
 {
-    email: "foo@bar.com",
-    password: "fooBarMuse"
+    "email": "foo@bar.com",
+    "password": "fooBarMuse"
 }
 ```
 
