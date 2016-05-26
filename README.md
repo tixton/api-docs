@@ -174,7 +174,7 @@ While collection is represented in json array:
 |-------------------|-------------------------------------------------------------------------------------------------------------------|
 | Braintree         | Purchasing using credit card will go through [Braintree](https://braintree.com), which is our payment gateway      |
 | ManualTransfer    | We also offer bank transfer as our method of purchase. You must pay within 1 (one) hour after issuance of invoice  |
-| Credit            | Credit method is for Tixton's existing member only. Credit includes Toncoin, coupon and cashable credit               |
+| Credit            | Credit method is for Tixton's existing users only. This method is available if and only if Tixton user's credit is sufficient to purchase the full price or payable is 0. Tixton user's credit includes Toncoin, coupon / bonus credit and cashable credit        |
 
 
 # Static Data
@@ -288,7 +288,7 @@ POST https://api.tixton.com/v1/auth/login
 
 HTTP : 200
 
-If credentials is valid, you will be response like:
+The response to valid credentials is as following:
 
 ```
 HTTP/1.1 200 OK
@@ -308,11 +308,11 @@ X-RateLimit-Remaining : 199
 }
 ```
 
-You must keep this token and add into HEADER Authorization parameter whenever you access our API.
+Afterwards, the token should be used in subsequent API call by inserting into HEADER Authorization.
 
 HTTP : 401
 
-But if the credentials is invalid you wull see a response like:
+The response to invalid credentials is as following:
 
 ```html
 {
@@ -407,11 +407,11 @@ X-RateLimit-Remaining : 199
 
 Note
 
-After user registered, our system will send a email verification to the specified email address.
+After user registers, an activation email will be sent to the specified email address.
 
 ## Activate
 
-User needs to verify the email by using the link sent to the email address. 
+User needs to activate Tixton's account before using by using the activation link sent to the email address. 
 
 **API endpoint**
 
@@ -465,7 +465,7 @@ If the token is not found or the user is already activate their token.
 
 ## Search
 
-The Search API is optimized to help you find the specific item you're looking for. It is similar to performing a search on Google. It's designed to help you find the hotel room as you need based on the search criteria. The search result is paginated, and you can navigate through using ```meta.pagination```. 
+The Search API is optimized to help you find the specific item you're looking for. It is similar to performing a search on Google. It's designed to help you find the hotel room based on the search criteria. The search result is paginated, and you can navigate through using ```meta.pagination```. 
 
 Tixton Search API provides up to 1,000 results for each search.
 
@@ -765,9 +765,7 @@ POST https://api.tixton.com/v1/purchase/:serial
 
 **Notes**
 
-If you passing HEADER ```Authorization: Bearer JWT-TOKEN``` on your request, our system will be 
-verified your token and if your token is match in our user record, we will be charge some amount in 
-user credit based on token request.
+By passing a valid authentication token inside the purchase order request, our system calculate the payable by adjusting with credit amount.
 
 **Example request**
 
@@ -822,7 +820,7 @@ HTTP : 200
 
 HTTP : 404
 
-Jika listing tidak ditemukan, atau listing sudah di beli orang lain
+In the case of listing not found or already purchased, you will receive code '404' with message 'LISTING_NOT_FOUND'
 
 ```html
 {
@@ -833,11 +831,12 @@ Jika listing tidak ditemukan, atau listing sudah di beli orang lain
 }
 ```
 
-HTTP 500
+HTTP : 500
 
-Jika kami tidak dapat memproses pembayaran anda.
+In the case of system unable to create purchase for this listing.
 
-```html
+```
+html
 {
     "meta": {
         "code": 500,
