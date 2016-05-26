@@ -972,7 +972,7 @@ HTTP : 200
 
 HTTP : 404
 
-Jika listing tidak ditemukan, atau listing sudah di beli orang lain
+If listing is not found, or already purchased:
 
 ```html
 {
@@ -985,7 +985,7 @@ Jika listing tidak ditemukan, atau listing sudah di beli orang lain
 
 HTTP 500
 
-Jika kami tidak dapat memproses pembayaran anda.
+If something goes wrong with the payment process:
 
 ```html
 {
@@ -998,8 +998,7 @@ Jika kami tidak dapat memproses pembayaran anda.
 
 ## Confirm Purchase Order
 
-Jika anda menggunakan metode pembayaran bank transfer anda harus melakukan konfirmasi pembayaran. 
-Untuk itu kami menyiapkan enpoint untuk melakukan hal tersebut.
+After making bank transfer, user needs to confirm that the payment has been made. We have provided an API endpoint to handle this.
 
 **API endpoint**
 
@@ -1064,7 +1063,7 @@ HTTP : 200
     },
     "meta": {
         "code": 200,
-        "message": "SUCCESSFULL"
+        "message": "SUCCESSFUL"
     }
 }
 ```
@@ -1080,7 +1079,7 @@ HTTP : 404
 }
 ```
 
-HTTP : 442
+HTTP : 422
 
 ```html
 {
