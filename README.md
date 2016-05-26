@@ -1,24 +1,24 @@
 # Introduction
 
 All Tixton API end-points begin with https://api.tixton.com/v1/ and use the HTTPS protocol. Response
-payloads are typically JSON; however, a few end-points return only a simple string identifier.
+payloads are typically JSON. However, some end-points return only a simple string identifier.
 
 ## Rate Limiting
 
 The current Tixton API rate limit is 200 requests per minute.
 
-## Deleting Objects
+## Creating, Retrieving, Updating, Deleting Objects
 
 We do our best to have all our URLs be [RESTful](http://en.wikipedia.org/wiki/Representational_state_transfer). 
-Every endpoint (URL) may support one of four different http verbs. GET requests fetch information 
+An endpoint (URL) may support up to four different HTTP verbs. GET requests fetch information 
 about an object, POST requests create objects, PUT requests update objects, and finally DELETE 
 requests will delete objects.
 
 ## Authentication
 
-There are two ways to authenticate through Tixton API v1. Requests that require authentication will 
-return 404 Not Found, instead of 403 Forbidden, in some places. This is to prevent the accidental 
-leakage of private repositories to unauthorized users.
+There are two ways to pass the authentication token in Tixton API v1, using header or inside body parameter.
+
+Request that requires authentication may return '404 Not Found', instead of '403 Forbidden'. This is to prevent the accidental leakage of private repositories to unauthorized users.
 
 **Auth Token** (sent in a header)
 
@@ -35,7 +35,7 @@ curl -H https://api.tixton.com/v1/:endpoint?token=JWT-TOKEN
 
 ## Structure
 
-Every response is contained by an envelope. That is, each response has a predictable set of keys with 
+Every response is contained within an envelope. The envelope has a predictable set of objects with 
 which you can expect to interact:
 
 ```html
@@ -54,7 +54,7 @@ which you can expect to interact:
             }
         }
     },
-    "erros": {
+    "errors": {
         "password": "The password field is required"
     },
     "data": {
@@ -66,11 +66,9 @@ which you can expect to interact:
 
 **META**
 
-The meta key is used to communicate extra information about the response to the developer. If all 
-goes well, you'll only ever see a code key with value 200. On the meta key also include pagination 
-key. The pagination key is used to provided a convenient way to access more data in any request for 
-sequential data. Simply call the url in the ```next``` parameter and we'll respond with the next set
-of data.
+The meta is used to communicate information about the response to the developer. Successful API call contains meta code '200' and message 'OK'.
+
+For GET request that may return large set of data, meta includes pagination object. You can use the URL in ```links.next``` or ```links.prev``` for a convenient way to navigate through the sequence of data.
 
 ```html
 {
@@ -78,13 +76,21 @@ of data.
         "code": 200,
         "message": "OK",
         "pagination": {
-
+            "total": 40,
+            "count": 15,
+            "per_page": 15,
+            "current_page": 2,
+            "total_pages": 3,
+            "links": {
+                "next": "...",
+                "prev": "..."
+            }
         }
     }
 }
 ```
 
-However, sometimes things go wrong, and in that case you might see a response like:
+In case of unsuccessful request, our API server will return response such as:
 
 ```html
 {
@@ -97,8 +103,7 @@ However, sometimes things go wrong, and in that case you might see a response li
 
 **ERRORS**
 
-The errors key is used to display extra information about the form validation errors, and in that 
-case you might see a response like:
+The errors object is used to display extra error information, will be useful especially for form validation errors. Sample errors can be found as follow:
 
 ```html
 {
@@ -115,11 +120,9 @@ case you might see a response like:
 
 **DATA**
 
-The data key is the meat of the response. It may be a list or dictionary, but either way this is 
-where you'll find the data you requested.
+The data is the core of the response. It may be a single resource or collection.
 
-Sometimes if you want to request an singgle resource, the data key structure will contains an json 
-object: 
+Single resource is represented in json object:
 
 ```html
 {
@@ -136,7 +139,7 @@ object:
 }
 ```
 
-Sometimes if you want to request an collection resource, the data key structure will contains an array:
+While collection is represented in json array:
 
 ```html
 {
@@ -156,7 +159,11 @@ Sometimes if you want to request an collection resource, the data key structure 
     ],
     "meta": {
         "code": 200,
-        "message": "OK"
+        "message": "OK",
+        "pagination": {
+            ...
+        }
+    }
     }
 }
 ```
@@ -165,9 +172,9 @@ Sometimes if you want to request an collection resource, the data key structure 
 
 | Code              | Description                                                                                                       |
 |-------------------|-------------------------------------------------------------------------------------------------------------------|
-| Braintree         | If you want to pay our inventory using credit card. We have a partnership with [braintree](https://braintree.com) |
-| ManualTransfer    | If you want to using bank transfer. You must pay before 1 (one) hour after you receive our invoice                |
-| Credit            | If you are our member, and you have enough credit, you can pay our inventory using this method                    |
+| Braintree         | Purchasing using credit card will go through [Braintree](https://braintree.com), which is our payment gateway      |
+| ManualTransfer    | We also offer bank transfer as our method of purchase. You must pay within 1 (one) hour after issuance of invoice  |
+| Credit            | Credit method is for Tixton's existing member only. Credit includes Toncoin, coupon and cashable credit               |
 
 
 # Static Data
@@ -265,8 +272,8 @@ POST https://api.tixton.com/v1/auth/login
 
 | Name     | Type   | Description                                       |
 |----------|--------|---------------------------------------------------|
-| email    | string | **Required**. A valid email address from member   |
-| password | string | **Required**. A valid password form member        |
+| email    | string | **Required**. A valid email address               |
+| password | string | **Required**. A valid password                    |
 
 **Example request**
 
@@ -330,10 +337,10 @@ POST https://api.tixton.com/v1/auth/register
 
 | Name              | Type          | Description                                               |
 |-------------------|---------------|-----------------------------------------------------------|
-| email             | string        | **Required**. A valid user email                          |
-| password          | string        | **Required**. A valid password from user, min 6 char      |
+| email             | string        | **Required**. A valid email                               |
+| password          | string        | **Required**. A valid password, min 6 characters          |
 | date_of_birth     | date          | **Required**. User date of birth, example ```1988-10-02```,  min age 16 years old  |
-| contact           | numeric       | **Required**. Phone number                                |
+| contact           | numeric       | **Required**. Phone number, example ```+628181234567      |
 | city_residence    | string        | **Required**. City of residence                           |
 | base_currency     | integer       | **Required**. Please see currency section for details     |
 | aff               | string        | Promo code                                                |
@@ -400,11 +407,11 @@ X-RateLimit-Remaining : 199
 
 Note
 
-After user registered, our system will sent a email verification.
+After user registered, our system will send a email verification to the specified email address.
 
 ## Activate
 
-After user successfully registered our system. The user need verify their email address. 
+User needs to verify the email by using the link sent to the email address. 
 
 **API endpoint**
 
@@ -449,7 +456,8 @@ If the token is not found or the user is already activate their token.
         "code": 400,
         "message": "TOKEN_NOT_FOUND"
     }
-}```
+}
+```
 
 
 
@@ -457,11 +465,9 @@ If the token is not found or the user is already activate their token.
 
 ## Search
 
-The Search API is optimized to help you find the specific item you're looking for. Think of it the 
-way you think of performing a search on Google. It's designed to help you find the one result you're 
-looking for (or maybe the few results you're looking for). Just like searching on Google, you sometimes 
-want to see a few pages of search results so that you can find the item that best meets your needs. 
-To satisfy that need, the Tixton Search API provides up to 1,000 results for each search.
+The Search API is optimized to help you find the specific item you're looking for. It is similar to performing a search on Google. It's designed to help you find the hotel room as you need based on the search criteria. The search result is paginated, and you can navigate through using ```meta.pagination```. 
+
+Tixton Search API provides up to 1,000 results for each search.
 
 **API endpoint**
 
@@ -473,10 +479,10 @@ GET https://api.tixton.com/v1/search
 | Name          | Type      | Description                               |
 |---------------|-----------|-------------------------------------------|
 | city_id       | integer   | Please see static data                    |
-| check_in      | date      | a valid date example ```2016-09-02```     |
-| check_out     | date      | a valid date example ```2016-09-02```     |
-| query         | string    | The search keywords, as well as any qualifiers. |
-| stars         | array     | The hotel stars 3, 4, 5                   |
+| check_in      | date      | a valid date in yyyy-mm-dd, example ```2016-09-02```    |
+| check_out     | date      | a valid date in yyyy-mm-dd, example ```2016-09-04```    |
+| query         | string    | The search keywords, as well as any qualifiers.         |
+| stars         | array     | The hotel stars, combination of 3, 4, 5                 |
 | facility      | array     | Please see static data                    |
 | currency      | string    | Please see static data                    |
 
