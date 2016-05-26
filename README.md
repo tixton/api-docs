@@ -448,7 +448,7 @@ X-RateLimit-Remaining : 199
 
 HTTP : 400
 
-If the token is not found or the user is already activate their token.
+If the token is not found or the user has already activated Tixton's account.
 
 ```html
 {
@@ -465,7 +465,7 @@ If the token is not found or the user is already activate their token.
 
 ## Search
 
-The Search API is optimized to help you find the specific item you're looking for. It is similar to performing a search on Google. It's designed to help you find the hotel room based on the search criteria. The search result is paginated, and you can navigate through using ```meta.pagination```. 
+The Search API is similar to performing a search on Google. It is optimized and designed to help find the hotel room based on the search criteria. The search result is paginated, and the paging information is described in ```meta.pagination```.
 
 Tixton Search API provides up to 1,000 results for each search.
 
@@ -820,7 +820,7 @@ HTTP : 200
 
 HTTP : 404
 
-In the case of listing not found or already purchased, you will receive code '404' with message 'LISTING_NOT_FOUND'
+In the case of listing not found or already purchased, error code '404' is returned.
 
 ```html
 {
@@ -833,10 +833,9 @@ In the case of listing not found or already purchased, you will receive code '40
 
 HTTP : 500
 
-In the case of system unable to create purchase for this listing.
+In the case of system unable to create purchase for this listing, error code '500' is returned.
 
-```
-html
+```html
 {
     "meta": {
         "code": 500,
@@ -847,15 +846,13 @@ html
 
 ## Payment Purchase Order
 
-Untuk melakukan pembayaran kami menggunakan 3 metode (lihat pada payment method).;
+Tixton accepts 3 payment methods:
 
-1 Credit
+1. Credit
 
-Opsi pembayaran ini akan muncul ketika ```payable``` key bernilai 0. Ini berarti seluruh biaya
-pembelian inventory dapat di bebankan pada credit yang anda punyai. Opsi ini hanya muncul bila
-anda sedang **LOGGED IN** di sistem kami atau ketika anda membuat purchase order anda mengirimkan
-header JWTToken yang valid terhadap akun anda. Untuk setup payment dapat melihat contoh sebagai
-berikut :
+This option is only available for Tixton's user and appears only when making purchase with zero payable. It means that the price of hotel room is covered fully using Tixton credit, with combination of Toncoin, coupon or cashable. User needs to be logged in and authenticated with valid JWTToken.
+
+Below is sample to setup payment in the HTML page:
 
 ```html
 <form class="" method="POST" action="https://api.tixton.com/v1/purchase/L23423423432-3FQ1AT">
@@ -868,11 +865,11 @@ berikut :
 </form>
 ```
 
-2 Braintree (credit card)
+2. Braintree (credit card)
 
-Pembayaran dengan metode ini dilakukan jika anda ingin membayar dengan menggunakan kartu kredit.
-Berdasarkan data purchase order di atas, maka untuk setup payment dapat melihat contoh sebagai 
-berikut :
+Braintree method should be chosen for credit card payment.
+
+Using similar purchase data in previous example, below is how to setup payment using Braintree:
 
 ```html
 <form class="" method="POST" action="https://api.tixton.com/v1/purchase/L23423423432-3FQ1AT">
@@ -901,10 +898,11 @@ berikut :
 </script>
 ```
 
-3 Bank Transfer
+3. Bank Transfer
 
-Pembayaran dengan menggunakan bank transfer. Pembayaran dengan metode ini hanya berlaku untuk mata
-uang IDR. Setup pembayaran dapat melihat contoh sebagai berikut :
+Payment using bank transfer is currently available only in IDR (Indonesian Rupiah). It must be communicated to user that the payment is to be made within 1 (one) hour after issuance of invoice. 
+
+The setup is as following:
 
 ```html
 <form class="" method="POST" action="https://api.tixton.com/v1/purchase/L23423423432-3FQ1AT">
