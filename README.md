@@ -9,14 +9,14 @@ The current Tixton API rate limit is 200 requests per minute.
 
 ## Creating, Retrieving, Updating, Deleting Objects
 
-We do our best to have all our URLs be [RESTful](http://en.wikipedia.org/wiki/Representational_state_transfer). 
+Tixton API is designed to be [RESTful](http://en.wikipedia.org/wiki/Representational_state_transfer). 
 An endpoint (URL) may support up to four different HTTP verbs. GET requests fetch information 
 about an object, POST requests create objects, PUT requests update objects, and finally DELETE 
 requests will delete objects.
 
 ## Authentication
 
-There are two ways to pass the authentication token in Tixton API v1, using header or inside body parameter.
+There are two ways to pass the authentication token in Tixton API v1, using header or inside body parameter. It is recommended to use authentication header.
 
 Request that requires authentication may return '404 Not Found', instead of '403 Forbidden'. This is to prevent the accidental leakage of private repositories to unauthorized users.
 
@@ -35,7 +35,7 @@ curl -H https://api.tixton.com/v1/:endpoint?token=JWT-TOKEN
 
 ## Structure
 
-Every response is contained within an envelope. The envelope has a predictable set of objects with 
+Every response is contained within an envelope. The envelope has set of objects with 
 which you can expect to interact:
 
 ```html
